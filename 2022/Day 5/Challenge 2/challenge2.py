@@ -1,4 +1,4 @@
-# Day 5, challenge 1 of AoC22
+# Day 5, challenge 2 of AoC22
 # Challenge 2 - Same thing as challenge 1, but moving multiple crate conserves their original ordering in the new stack 
 #               (instead of inverting it).
 from collections import deque, defaultdict
