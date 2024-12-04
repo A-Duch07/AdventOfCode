@@ -1,7 +1,9 @@
 # Day 3, challenge 2 of AoC2024 - We are provided a list of corrupted instructions from a programs memory. It looks like:
-# xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5)) = 161
+# xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5)) = 48
 # The only operation that is legitimate in said list of instruction is any operation that matches mul(x, y), where x and y
-# can be anywhere from 1 to 3 digits long. Find all operations and do the sum of all products.
+# can be anywhere from 1 to 3 digits long. Find all operations and do the sum of all products. The caveate in this one,
+# however, is that only instructions following a "do()" instruction are executable. Instructions following "don't()" are not. 
+# We assume that from the beginning, we are in an executable state.
 import re
 
 with open('../input') as f:
