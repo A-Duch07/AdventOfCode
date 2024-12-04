@@ -1,4 +1,4 @@
-# Day 1, challenge 1 of AoC2024 - You're provided with an input that looks like:
+# Day 2, challenge 1 of AoC2024 - You're provided with an input that looks like:
 # [7 6 4 2 1
 #  1 2 7 8 9
 #  9 7 6 2 1]

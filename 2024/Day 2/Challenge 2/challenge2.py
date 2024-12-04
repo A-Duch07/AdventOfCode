@@ -1,4 +1,4 @@
-# Day 1, challenge 2 of AoC2024 - Identical to the previous challenge, except that now, 
+# Day 2, challenge 2 of AoC2024 - Identical to the previous challenge, except that now, 
 # when the report is deemed unsafe, you can reevaluate it while having removed only one 
 # level. If the removal of a single level makes it safe, then the report is deemed safe
 # after all.
