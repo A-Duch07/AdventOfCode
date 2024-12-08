@@ -1,67 +1,42 @@
-# Day 4, challenge 1 of AoC2024 - 
-import re
-import pandas as pd
+# Day 4, challenge 1 of AoC2024 - Find string 'XMAS' in an input. It can be found horizontally 
+# (both frontwards and backwards, i.e. XMAS and SMAX), vertically in both directions, and diagonally
+# in all 4 directions. Count the number of occurence of said string.
 
-# Simple matching function for XMAS for concision sake
-def number_of_matches(input: str) -> int:
-    return len(re.findall(r'XMAS|xmas', input))
-
-# Loop through a diagonals values based on the current row and column, 
-# as well as the total number of rows and columns
-def iter_diag(df: pd.DataFrame, row_index: int, col_index: int, nb_row: int, nb_col: int) -> str:
-    current_diag: str = '' # current diagonal storage
-    while row_index != nb_row and col_index != nb_col:
-        current_diag += df[col_index][row_index]
-        row_index += 1
-        col_index += 1
-    
-    return current_diag # Adding whitespace to seperate the diagonals in the string (so as not to create involuntary XMAS combinations between diagonals)
-
-# Function to extract all the diagonals into one string for matching of XMAS
-def diagonal_str_extraction(df: pd.DataFrame) -> str:
-    extracted_diagonal: str = '' # Extracted diagonal string
-    nb_row, nb_col = df.shape
-
-    # Iterate over each column of the puzzle's dataframe (our provided input)
-    for col_index, col_chars in df.items():
-        # When doing the first column, we tackle all the diagonals below it as well. Doing so means we don't
-        # have to do anything but the higher diagonals after the first column.
-        if col_index == 0:
-            for row_index, _ in col_chars.items():
-                extracted_diagonal += iter_diag(df, row_index, col_index, nb_row, nb_col)
-        else:
-            extracted_diagonal += iter_diag(df, 0, col_index, nb_row, nb_col)
-    
-    return extracted_diagonal
-   
+# Comparison function for XMAS value
+def assertXMAS(value: list[str]) -> int:
+    xmas: list[str] = ['X', 'M', 'A', 'S']
+    return 1 if all(v == x for v, x in zip(value, xmas)) else 0
 
 with open('../input') as f:
-    # Extract the puzzle from the file to a list of strings and to a df, for easier manipulations on complexe operations
-    word_search_puzzle:list[str] = [line.strip('\n') for line in f.readlines()]
-    word_search_df: pd.DataFrame = pd.DataFrame(data=[list(line) for line in word_search_puzzle])
+    # Readlines into a list of strings
+    puzzle: list[str] = f.read().splitlines()
+    count:int = 0
 
-    # Get the word search puzzle
-    horizontal_search:str = ''.join(word_search_puzzle)
-    reversed_horizontal_search:str = horizontal_search[::-1] # Reverse the word search puzzle to check for backwards XMAS patterns
+    # Iterate through each line of the input and every individual character
+    for i, line in enumerate(puzzle):
+        for j, char in enumerate(line):
+            if char == 'X':
+                # Horizontal: use array splicing to check against XMAS and SAMX, easier this way
+                count += (1 if line[j:j+4] == 'XMAS' else 0) + (1 if line[j-3:j+1] == 'SAMX' else 0)
 
-    # Create a vertical string of the word search. Apparently, its faster to iterate through cols than rows in pandas, so that's what I did. No need to transpose matrix
-    vertical_search:str = ''.join([''.join(col.to_numpy().tolist()) for _, col in word_search_df.items()])
-    reversed_vertical_search: str = vertical_search[::-1] # Reverse the word search puzzle to check for backwards XMAS patterns
+                # Vertical: Can't use array splicing, so get the 4 chars above or below and 
+                # use assertion function
+                if i<len(puzzle)-3:
+                    count += assertXMAS([puzzle[i+k][j] for k in range(4)])
+                if i>2: 
+                    count += assertXMAS([puzzle[i-k][j] for k in range(4)])
+                
+                # Diagonal left -> right: similarly to the vertical, get the diagonal that goes l->r
+                # towards the bottom and top and check for XMAS
+                if i<len(puzzle)-3 and j<len(line)-3: # l->r towards bottom
+                    count += assertXMAS([puzzle[i+k][j+k] for k in range(4)])
+                if i>2 and j<len(line)-3: # l->r towards top
+                    count += assertXMAS([puzzle[i-k][j+k] for k in range(4)])
 
-    # Create a diagonal (left to right) string of the word search
-    diagonal_lr_search: str = diagonal_str_extraction(word_search_df)
-    reversed_diagonal_lr_search: str = diagonal_lr_search[::-1]
+                # Diagonal right -> left: same as above, but right to left
+                if i<len(puzzle)-3 and j>2: # r->l towards bottom
+                    count += assertXMAS([puzzle[i+k][j-k] for k in range(4)])
+                if i>2 and j>2: # r->l towards top
+                    count += assertXMAS([puzzle[i-k][j-k] for k in range(4)])
 
-    # Create a diagonal (right to left) string of the word search\
-    mirrored_word_search: list = []
-    for _, col in word_search_df.items():
-        mirrored_word_search.insert(0, col)
-    diagonal_rl_search: str = diagonal_str_extraction(pd.DataFrame(mirrored_word_search).transpose())
-    reversed_diagonal_rl_search: str = diagonal_rl_search[::-1]
-
-    total_found = number_of_matches(horizontal_search) + number_of_matches(reversed_horizontal_search) +\
-        number_of_matches(vertical_search) + number_of_matches(reversed_vertical_search) +\
-        number_of_matches(diagonal_lr_search) + number_of_matches(reversed_diagonal_lr_search) +\
-        number_of_matches(diagonal_rl_search) + number_of_matches(reversed_diagonal_rl_search)
-    
-    print(total_found)
+    print(count)
